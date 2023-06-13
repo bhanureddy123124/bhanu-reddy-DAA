@@ -1,0 +1,102 @@
+#include <stdio.h>
+#include <stdbool.h>
+#include <limits.h>
+
+#define N 4
+
+void printAssignment(int assignment[N], int cost[N][N]) {
+    printf("Assignment:\n");
+    for (int i = 0; i < N; i++) {
+        printf("Person %c -> Job %d\n", i + 'A', assignment[i] + 1);
+    }
+    
+    int totalCost = 0;
+    for (int i = 0; i < N; i++) {
+        totalCost += cost[i][assignment[i]];
+    }
+    printf("Total Cost: %d\n", totalCost);
+}
+
+void subtractMinCost(int cost[N][N], int minCost) {
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            if (cost[i][j] != INT_MAX) {
+                cost[i][j] -= minCost;
+            }
+        }
+    }
+}
+
+bool isJobAssigned(int assignment[N], int job) {
+    for (int i = 0; i < N; i++) {
+        if (assignment[i] == job) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool isPersonAssigned(int assignment[N], int person) {
+    return (assignment[person] != -1);
+}
+
+void assignJob(int assignment[N], int person, int job) {
+    assignment[person] = job;
+}
+
+void unassignJob(int assignment[N], int person) {
+    assignment[person] = -1;
+}
+
+void solveAssignmentProblemUtil(int cost[N][N], int assignment[N], int person, int currCost, int* minCost) {
+    if (person == N) {
+        if (currCost < *minCost) {
+            *minCost = currCost;
+            return;
+        }
+    }
+    
+    for (int job = 0; job < N; job++) {
+        if (!isJobAssigned(assignment, job)) {
+            assignJob(assignment, person, job);
+            
+            int reducedCost = currCost + cost[person][job];
+            if (reducedCost < *minCost) {
+                int minCostCopy = *minCost;
+                subtractMinCost(cost, reducedCost);
+                
+                solveAssignmentProblemUtil(cost, assignment, person + 1, reducedCost, minCost);
+                
+                *minCost = minCostCopy;
+                unassignJob(assignment, person);
+            } else {
+                unassignJob(assignment, person);
+            }
+        }
+    }
+}
+
+void solveAssignmentProblem(int cost[N][N]) {
+    int assignment[N];
+    for (int i = 0; i < N; i++) {
+        assignment[i] = -1;
+    }
+    
+    int minCost = INT_MAX;
+    solveAssignmentProblemUtil(cost, assignment, 0, 0, &minCost);
+    
+    printAssignment(assignment, cost);
+}
+
+int main() {
+    int cost[N][N] = {
+        {12, 8, 9, 10},
+        {11, 10, 10, 9},
+        {9, 11, 8, 12},
+        {11, 9, 23, 7}
+    };
+    
+    solveAssignmentProblem(cost);
+    
+    return 0;
+}
