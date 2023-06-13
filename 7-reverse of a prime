@@ -1,0 +1,43 @@
+#include <stdio.h>
+
+int isPrime(int num) {
+    if (num <= 1) {
+        return 0;
+    }
+
+    for (int i = 2; i * i <= num; i++) {
+        if (num % i == 0) {
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
+int reverseNumber(int num) {
+    int reversedNum = 0;
+
+    while (num != 0) {
+        reversedNum = reversedNum * 10 + num % 10;
+        num /= 10;
+    }
+
+    return reversedNum;
+}
+
+int main() {
+    int start, end;
+
+    printf("Enter the range (start end): ");
+    scanf("%d %d", &start, &end);
+
+    printf("Prime numbers where the reverse is also prime:\n");
+
+    for (int i = start; i <= end; i++) {
+        if (isPrime(i) && isPrime(reverseNumber(i))) {
+            printf("%d\n", i);
+        }
+    }
+
+    return 0;
+}
